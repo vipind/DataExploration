@@ -1,0 +1,57 @@
+#####################
+# 1. Merge two data sets
+#####################
+#PreProcess test data by merging subjects and activity into the test data
+#Read in the test data
+testData  <-read.table("./data/X_test.txt")
+#Read in the test subjects
+testSubjects <- read.table("./data/subject_test.txt")
+colnames(testSubjects) <- "Subject"
+#Append subjects
+#testData$Subject <- testSubjects
+testData = cbind(testSubjects,testData)
+#Read in the test Activities
+testActivities <- read.table("./data/y_test.txt")
+#Append Activities
+#testData$Activity <- testActivities
+colnames(testActivities) <- "Activity"
+testData = cbind(testActivities,testData)
+######################PreProcess train data by merging subjects and activity into the train data
+#Read in the train data
+trainData  <-read.table("./data/X_train.txt")
+#Read in the train subjects
+trainSubjects <- read.table("./data/subject_train.txt")
+colnames(trainSubjects) <- "Subject"
+#Append subjects
+#trainData$Subject <- trainSubjects
+trainData = cbind(trainSubjects,trainData)
+#Read in the test Activities
+trainActivities <- read.table("./data/y_train.txt")
+#Append Activities
+colnames(trainActivities) <- "Activity"
+trainData = cbind(trainActivities,trainData)
+######################
+
+
+#Merging two data sets training and test by adding rows of the test to the training
+
+combinedData <- rbind(trainData, testData)
+
+###Create the ActivityDesc in the combined file
+#Create the vector for the activity names
+activityLabels<- c("WALKING", "WALKING_UPSTAIRS", "WALKING_DOWNSTAIRS", "SITTING","STANDING","LAYING")
+activityDescs = activityLabels(combinedData$Activity)
+combinedData <- cbind(activityLabels[combinedData$Activity],combinedData )
+#names(combinedData)
+######################
+#2.Extracts only the measurements on the mean and standard deviation for each measurement
+######################
+# Read in list of features into a vector featuresData
+featuresData <- read.table("./data/features.txt")
+#Change the column names of the combinedData
+firstThreeColumnNames <- c("ActDesc", "ActCode", "Subject")
+featuresList <- featuresData$V2
+colnames(combinedData)<- c(firstThreeColumnNames,as.character(featuresList))
+#Limit the view to include only mean and std columns
+filteredFeaturesList <-grep("mean\\(\\)|std\\(\\)", featuresList, value=TRUE)
+filteredCombinedData <-combinedData[,c(firstThreeColumnNames,as.character(filteredFeaturesList))]
